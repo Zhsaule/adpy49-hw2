@@ -1,4 +1,4 @@
-# Домашнее задание к лекции 5.«Regular expressions»
+# Домашнее задание к лекции 2.«Regular expressions»
 # Ваша задача: починить адресную книгу, используя регулярные выражения.
 # Структура данных будет всегда:
 # lastname,firstname,surname,organization,position,phone,email
@@ -16,34 +16,32 @@ with open("phonebook_raw.csv") as f:
     rows = csv.reader(f, delimiter=",")
     contacts_list = list(rows)
 
-# TODO 1: выполните пункты 1-3 ДЗ
+# TODO 1: пункты 1-3 ДЗ
 contacts_list_new = list()
 name_list = list()
-ii = 1
 for _row in contacts_list:
-    # TODO 1: выполните пункты 1 ДЗ
+    # TODO 1: пункт 1 ДЗ
     __row = " ".join(_row[0:3]).split()
     if len(__row) < 3:
         __row.insert(2, "")
     __row.extend(_row[3:7])
-    # TODO 1: выполните пункты 2 ДЗ
+    # TODO 1: пункт 2 ДЗ
     # Удаление символов в телефоне
     __row[5] = re.sub(r"[\s*|\-|\(|\)]", "", _row[5])
     # Приведение к требуемому формату
     __row[5] = re.sub(r"\A\+?[78]\s*(\d{3})\s*(\d{3})\s*(\d{2})\s*(\d{2})", r"+7(\1)\2-\3-\4 ", __row[5]).strip()
-    # TODO 1: выполните пункты 3 ДЗ
+    # TODO 1: пункт 3 ДЗ (При полном совпадении Фамилии+Имя = все данные сливаются, без учета Отчества)
     if ' '.join(__row[0:2]).strip() in name_list:
         i = name_list.index(' '.join(__row[0:2]).strip())
         for j in range(2, 7):
-            if contacts_list_new[i][j] in (None, ''):
-                contacts_list_new[i][j] = __row[j]
+            if __row[j].strip() not in contacts_list_new[i][j]:
+                contacts_list_new[i][j] = (contacts_list_new[i][j] + ' ' + __row[j]).strip()
     else:
         name_list.append(' '.join(__row[0:2]).strip())
         contacts_list_new.append(__row)
 
-# TODO 2: сохраните получившиеся данные в другой файл
+# TODO 2: сохраняем получившиеся данные в другой файл
 # код для записи файла в формате CSV
 with open('phonebook.csv', 'w', encoding='utf-8', newline='') as f:
     datawriter = csv.writer(f, delimiter=',')
-    # Вместо contacts_list подставьте свой список
     datawriter.writerows(contacts_list_new)
